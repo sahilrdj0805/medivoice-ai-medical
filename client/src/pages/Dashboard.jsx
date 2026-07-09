@@ -35,6 +35,12 @@ export default function Dashboard() {
   };
 
   const startSession = async (doctorObj, symptoms) => {
+    if (user && user.credits < 10) {
+      toast.error("Insufficient credits. Please buy more credits (10 credits required per consultation).");
+      setTriageModalOpen(false);
+      navigate("/pricing");
+      return;
+    }
     try {
       const res = await api.post("/sessions", { doctor: doctorObj, symptoms });
       await refreshUser(); // Update credit count instantly in context
@@ -45,6 +51,12 @@ export default function Dashboard() {
   };
 
   const handleTriageSubmit = async () => {
+    if (user && user.credits < 10) {
+      toast.error("Insufficient credits. Please buy more credits (10 credits required per consultation).");
+      setTriageModalOpen(false);
+      navigate("/pricing");
+      return;
+    }
     if (!triageSymptoms.trim()) {
         toast.error("Please enter your symptoms");
         return;
@@ -61,6 +73,12 @@ export default function Dashboard() {
   };
 
   const handleDirectConsultSubmit = async () => {
+    if (user && user.credits < 10) {
+      toast.error("Insufficient credits. Please buy more credits (10 credits required per consultation).");
+      setTriageModalOpen(false);
+      navigate("/pricing");
+      return;
+    }
     if (!triageSymptoms.trim()) {
         toast.error("Please enter your symptoms");
         return;
@@ -114,6 +132,11 @@ export default function Dashboard() {
           </div>
           <button 
             onClick={() => {
+              if (user && user.credits < 10) {
+                toast.error("Insufficient credits. Please buy more credits (10 credits required per consultation).");
+                navigate("/pricing");
+                return;
+              }
               setSelectedDoctor(null);
               setTriageSymptoms("");
               setTriageStep(1);
@@ -138,6 +161,11 @@ export default function Dashboard() {
               <div 
                 key={doc.id} 
                 onClick={() => {
+                  if (user && user.credits < 10) {
+                    toast.error("Insufficient credits. Please buy more credits (10 credits required per consultation).");
+                    navigate("/pricing");
+                    return;
+                  }
                   setSelectedDoctor(doc);
                   setTriageSymptoms("");
                   setTriageStep(1);

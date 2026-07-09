@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import api from "../lib/api";
 
 export function useVoiceChat(doctorVoiceConfig) {
   const [isListening, setIsListening] = useState(false);
@@ -79,23 +80,27 @@ export function useVoiceChat(doctorVoiceConfig) {
     setIsSpeaking(true);
     
     try {
-        const token = localStorage.getItem("token");
-        const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : "http://localhost:5000/api";
         const voice = voiceOverride || (typeof doctorVoiceConfig === "string" ? doctorVoiceConfig : "en-US-AriaNeural");
         
-        // Direct stream URL via GET
-        const url = `${baseUrl}/ai/tts?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voice)}&token=${token}`;
+        // Fetch audio stream using axios instance (sends cookies automatically)
+        const response = await api.get("/ai/tts", {
+            params: { text, voice },
+            responseType: "blob"
+        });
         
-        const audio = new Audio(url);
+        const blobUrl = URL.createObjectURL(response.data);
+        const audio = new Audio(blobUrl);
         audioRef.current = audio;
         
         audio.onended = () => {
             setIsSpeaking(false);
             if (onEndCallback) onEndCallback();
+            URL.revokeObjectURL(blobUrl);
         };
         
         audio.onerror = () => {
             setIsSpeaking(false);
+            URL.revokeObjectURL(blobUrl);
         };
         
         // Resolve duration and start typing ONLY when audio is actively playing to sync text & voice

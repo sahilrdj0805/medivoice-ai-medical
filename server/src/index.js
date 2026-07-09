@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
@@ -13,13 +14,30 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175"
+];
+if (process.env.CLIENT_URL) {
+  const sanitizedUrl = process.env.CLIENT_URL.replace(/['"]/g, "");
+  allowedOrigins.push(sanitizedUrl);
+}
+
 // Middleware
 app.use(cors({ 
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   credentials: true 
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use("/api/auth", authRoutes);

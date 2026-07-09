@@ -22,12 +22,13 @@ router.post("/register", async (req, res) => {
 
     const user = await User.create({ name, email, password });
     const token = generateToken(user._id);
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      sameSite: "lax"
+      sameSite: isProduction ? "none" : "lax"
     });
 
     res.status(201).json({
@@ -69,12 +70,13 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const token = generateToken(user._id);
+    const isProduction = process.env.NODE_ENV === "production";
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      sameSite: "lax"
+      sameSite: isProduction ? "none" : "lax"
     });
 
     res.json({
@@ -100,10 +102,11 @@ router.post("/login", async (req, res) => {
 
 // POST /api/auth/logout
 router.post("/logout", (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax"
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax"
   });
   res.json({ message: "Logged out successfully" });
 });
