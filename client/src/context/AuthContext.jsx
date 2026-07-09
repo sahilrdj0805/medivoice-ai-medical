@@ -8,15 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      api.get("/auth/me")
-        .then((res) => setUser(res.data.user))
-        .catch(() => localStorage.removeItem("token"))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+    api.get("/auth/me")
+      .then((res) => setUser(res.data.user))
+      .catch(() => localStorage.removeItem("token"))
+      .finally(() => setLoading(false));
   }, []);
 
   const login = async (email, password) => {
@@ -33,9 +28,14 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem("token");
     setUser(null);
+    try {
+      await api.post("/auth/logout");
+    } catch (err) {
+      console.error("Server logout failed:", err);
+    }
   };
 
   const updateProfile = async (profileData) => {
@@ -45,14 +45,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const refreshUser = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const res = await api.get("/auth/me");
-        setUser(res.data.user);
-      } catch (err) {
-        console.error("Failed to refresh user profile:", err);
-      }
+    try {
+      const res = await api.get("/auth/me");
+      setUser(res.data.user);
+    } catch (err) {
+      console.error("Failed to refresh user profile:", err);
     }
   };
 

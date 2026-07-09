@@ -23,7 +23,11 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard");
+      if (user.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     }
   }, [user, loading, navigate]);
 

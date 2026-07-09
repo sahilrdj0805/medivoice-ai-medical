@@ -13,7 +13,7 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   const isActive = (path) => location.pathname === path;

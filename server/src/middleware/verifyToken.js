@@ -4,6 +4,18 @@ import User from "../models/User.js";
 const verifyToken = async (req, res, next) => {
   let token = req.query.token;
 
+  // Extract from cookies if present
+  if (!token && req.headers.cookie) {
+    const rawCookies = req.headers.cookie.split(";");
+    for (let cookie of rawCookies) {
+      const [name, val] = cookie.trim().split("=");
+      if (name === "token") {
+        token = val;
+        break;
+      }
+    }
+  }
+
   if (!token) {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith("Bearer ")) {

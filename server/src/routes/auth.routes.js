@@ -23,6 +23,13 @@ router.post("/register", async (req, res) => {
     const user = await User.create({ name, email, password });
     const token = generateToken(user._id);
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: "lax"
+    });
+
     res.status(201).json({
       token,
       user: {
@@ -63,6 +70,13 @@ router.post("/login", async (req, res) => {
 
     const token = generateToken(user._id);
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: "lax"
+    });
+
     res.json({
       token,
       user: {
@@ -84,20 +98,19 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// GET /api/auth/me
-router.get("/me", async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer "))
-    return res.status(401).json({ message: "No token" });
+// POST /api/auth/logout
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax"
+  });
+  res.json({ message: "Logged out successfully" });
+});
 
-  try {
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select("-password");
-    res.json({ user });
-  } catch {
-    res.status(401).json({ message: "Invalid token" });
-  }
+// GET /api/auth/me
+router.get("/me", verifyToken, async (req, res) => {
+  res.json({ user: req.user });
 });
 
 // PUT /api/auth/profile
