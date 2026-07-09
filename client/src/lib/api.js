@@ -5,4 +5,11 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Attach JWT as a fallback header (useful if browser blocks third-party cookies)
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
 export default api;
