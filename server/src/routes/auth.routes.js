@@ -22,7 +22,7 @@ router.post("/register", async (req, res) => {
 
     const user = await User.create({ name, email, password });
     const token = generateToken(user._id);
-    const isProduction = process.env.NODE_ENV === "production";
+    const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -70,7 +70,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const token = generateToken(user._id);
-    const isProduction = process.env.NODE_ENV === "production";
+    const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -102,7 +102,7 @@ router.post("/login", async (req, res) => {
 
 // POST /api/auth/logout
 router.post("/logout", (req, res) => {
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
   res.clearCookie("token", {
     httpOnly: true,
     secure: isProduction,

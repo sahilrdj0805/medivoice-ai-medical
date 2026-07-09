@@ -84,8 +84,8 @@ export default function History() {
 
         {sessions.length === 0 ? (
           <div className="border border-dashed border-gray-300 rounded-[2rem] bg-white/50 backdrop-blur-sm p-16 flex flex-col items-center justify-center text-center mb-16 max-w-4xl mx-auto">
-            <div className="mb-6 opacity-80 mix-blend-multiply">
-                <img src="/empty-state.svg" alt="No Consultations" className="w-48 h-auto object-contain" onError={(e) => e.target.style.display = 'none'} />
+            <div className="mb-6 w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center border border-blue-100">
+                <Stethoscope size={32} className="opacity-80" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No Recent Consultations</h3>
             <p className="text-gray-500 mb-8 max-w-sm text-sm leading-relaxed">Your medical history is clear. Start a new session to log your first AI consultation.</p>
